@@ -1,0 +1,55 @@
+name: send-deploy-email
+description: >
+  Invia email riepilogativa esito deploy via SMTP SSL.
+  Azione condivisa WaveTech: usabile da tutti i repo dell'org.
+  Unico secret richiesto in ogni repo: SMTP_PASSWORD.
+
+inputs:
+  password:
+    description: Password account SMTP (passare ${{ secrets.SMTP_PASSWORD }})
+    required: true
+  status:
+    description: Esito deploy (success | failure)
+    required: true
+  tag:
+    description: Tag immagine deployata (opzionale)
+    required: false
+    default: ""
+  to:
+    description: Destinatario
+    required: false
+    default: olivieri88@gmail.com
+  smtp-host:
+    required: false
+    default: smtps.aruba.it
+  smtp-port:
+    required: false
+    default: "465"
+  username:
+    required: false
+    default: info@wavetech.it
+  from:
+    required: false
+    default: info@wavetech.it
+
+runs:
+  using: composite
+  steps:
+    - name: Invia email esito deploy
+      shell: bash
+      env:
+        SMTP_HOST: ${{ inputs.smtp-host }}
+        SMTP_PORT: ${{ inputs.smtp-port }}
+        SMTP_USER: ${{ inputs.username }}
+        SMTP_PASS: ${{ inputs.password }}
+        SMTP_FROM: ${{ inputs.from }}
+        MAIL_TO: ${{ inputs.to }}
+        DEPLOY_STATUS: ${{ inputs.status }}
+        DEPLOY_TAG: ${{ inputs.tag }}
+        GH_REPO: ${{ github.repository }}
+        GH_REF: ${{ github.ref_name }}
+        GH_SHA: ${{ github.sha }}
+        GH_ACTOR: ${{ github.actor }}
+        GH_EVENT: ${{ github.event_name }}
+        GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: python3 "${{ github.action_path }}/send.py"

@@ -6,7 +6,7 @@ description: >
 
 inputs:
   password:
-    description: Password account SMTP (passare ${{ secrets.SMTP_PASSWORD }})
+    description: Password account SMTP (passare il secret SMTP_PASSWORD del repo)
     required: true
   status:
     description: Esito deploy (success | failure)
